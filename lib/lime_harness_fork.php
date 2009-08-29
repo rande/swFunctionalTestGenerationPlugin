@@ -9,7 +9,6 @@
  * file that was distributed with this source code.
  */
 
-
 declare(ticks = 1);
 
 class lime_harness_fork extends lime_harness
@@ -17,7 +16,7 @@ class lime_harness_fork extends lime_harness
 
   public
     $output_dir;
-    
+
   // used by the parent process
   protected
     $cpt = 0,
@@ -63,7 +62,7 @@ class lime_harness_fork extends lime_harness
 
     if(!$this->output_dir)
     {
-      
+
       throw new Exception('please provide an output_dir folder');
     }
 
@@ -139,7 +138,7 @@ class lime_harness_fork extends lime_harness
         $children_pid = pcntl_fork();
 
         if($children_pid == -1) {
-           echo "[$this->pid] Error creating fork\n";
+           $this->output->echoln("[$this->pid] Error creating fork");
         }
         elseif($children_pid == 0)
         {
@@ -198,7 +197,9 @@ class lime_harness_fork extends lime_harness
       '_nb_tests'     => 0,
     );
 
-    $files = sfFinder::type('file')->name('*.log')->in($this->output_folder());
+    $files = sfFinder::type('file')
+      ->name('*.log')
+      ->in($this->output_folder());
 
     foreach($files as $log_file)
     {
@@ -219,7 +220,24 @@ class lime_harness_fork extends lime_harness
       $this->current_test = 0;
       $this->current_file = $file;
       $this->process_test_output($lines);
+
+      $_failed_test = $this->stats['_failed_tests'];
+
       $this->add_stats($file, $return);
+
+      // rename output file
+      // /base/path/app/rep/baseTest.php => rep.baseTest.php
+      $new_name = str_replace($this->base_dir, '', $file);
+      $new_name = str_replace(array('/', '.php'), array('_', '.log'), $new_name);
+      $new_name = $this->output_folder().'/'.$new_name;
+
+      rename($log_file, $new_name);
+
+      // TODO : make this optional
+      if($_failed_test == $this->stats['_failed_tests'])
+      {
+        unlink($new_name);
+      }
     }
 
     return $this->analyse_stats();
