@@ -19,6 +19,8 @@
  */
 class swFunctionalUnitTestDebugPanel extends sfWebDebugPanel
 {
+  private $default_formatter = 'swTestDoctrineFormatter';
+
   public function getTitle()
   {
     
@@ -33,6 +35,19 @@ class swFunctionalUnitTestDebugPanel extends sfWebDebugPanel
   
   public function getPanelContent()
   {
+    $config = sfYaml::load(sfConfig::get('sf_config_dir').'/test_generation.yml');
+    
+    if(isset($config['default']) && isset($config['default']['formatter'])) {
+      $formatter_class = $config['default']['formatter'];
+    } else {
+      $formatter_class = $this->default_formatter;
+    }
+    
+    $formatter = new $formatter_class();
+    
+    if(!$formatter instanceof swTestFunctionalFormatter) {
+      throw new InvalidArgumentException('invalid formatter');
+    }
     
     return '
       <div id="sfDebugPanelFunctionalUnitTest"><div style="float:left">'.
@@ -40,20 +55,9 @@ class swFunctionalUnitTestDebugPanel extends sfWebDebugPanel
       (!sfContext::getInstance()->getUser()->getAttribute('sw_func_enabled', false, 'swToolbox') ?
       "<a href='?_sw_func_enabled=1'>Activate</a>" :
       "<a href='?_sw_func_enabled=0'>Deactivate</a>")
-      .'<br /><textarea style="width:500px; height: 200px; font-family:courier">'.htmlspecialchars('
-<?php
-
-include(dirname(__FILE__).\'/../../bootstrap/functional.php\');
-
-$browser = new sfTestFunctional(new sfBrowser());
-$test    = $browser->test();
-$conn    = Doctrine::getConnectionByTableName(\'your_model\');
-
-$conn->beginTransaction();
-'.swFilterFunctionalTest::getRawPhp().'
-
-$conn->rollback();', ENT_COMPAT, 'UTF-8').'
-</textarea>
+      .'<br /><textarea style="width:500px; height: 200px; font-family:courier">'
+      .$formatter->build(swFilterFunctionalTest::getRawPhp()).
+      '</textarea>
       </div>
       <div style="float:left">
         <h2>References</h2>
