@@ -53,7 +53,10 @@ class swFilterFunctionalTest extends sfFilter
         }
       } 
 
-      $link .= '_sw_func_link=' . $link_content;
+      if(trim($link_content) != 0) 
+      { 
+        $link .= '_sw_func_link=' . $link_content; 
+      }
     }
 
     return sprintf('<a%shref=%s%s%s%s>%s</a>',
