@@ -21,6 +21,32 @@ class swTestFunctional extends sfTestFunctional
 {
   
   /**
+   * Initializes the browser tester instance.
+   *
+   * @param sfBrowserBase $browser A sfBrowserBase instance
+   * @param lime_test     $lime    A lime instance
+   */
+  public function __construct(sfBrowserBase $browser, lime_test $lime = null, $testers = array())
+  {
+    
+    // Since symfony 1.4.5
+    if($lime === null)
+    {
+      $lime = new lime_test(0, array(
+        'error_reporting' => true,
+        'verbose'         => true
+      ));
+    }
+    
+    $testers = array_merge(array(
+      'view_cache' => 'sfTesterViewCache',
+      'form'       => 'sfTesterForm',
+    ), $testers);
+
+    parent::__construct($browser, $lime, $testers);
+  }
+  
+  /**
    * get var from the last action stack
    * 
    * @param $name name of the var
@@ -32,6 +58,14 @@ class swTestFunctional extends sfTestFunctional
     return $this->browser->getContext()->getActionStack()->getLastEntry()->getActionInstance()->getVar($name);
   }
 
+  public function call($uri, $method = 'get', $parameters = array(), $changeStack = true)
+  {
+    $conn = Doctrine::getConnectionByTableName('sf_guard_user');
+    $conn->clear();
+    
+    return parent::call($uri, $method, $parameters, $changeStack);
+  }
+  
   /**
    * @param string $user 
    * @param string $password
