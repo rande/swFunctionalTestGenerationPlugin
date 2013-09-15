@@ -53,7 +53,7 @@ class swFilterFunctionalTest extends sfFilter
         }
       } 
 
-      if(trim($link_content) != 0) 
+      if( strlen( trim( $link_content ) ) ) 
       { 
         $link .= '_sw_func_link=' . $link_content; 
       }
