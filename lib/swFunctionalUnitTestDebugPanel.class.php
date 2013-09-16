@@ -19,7 +19,7 @@
  */
 class swFunctionalUnitTestDebugPanel extends sfWebDebugPanel
 {
-  private $default_formatter = 'swTestDoctrineFormatter';
+  private $default_formatter = 'swTestPropelFormatter';
 
   public function getTitle()
   {
@@ -55,24 +55,13 @@ class swFunctionalUnitTestDebugPanel extends sfWebDebugPanel
       (!sfContext::getInstance()->getUser()->getAttribute('sw_func_enabled', false, 'swToolbox') ?
       "<a href='?_sw_func_enabled=1'>Activate</a>" :
       "<a href='?_sw_func_enabled=0'>Deactivate</a>")
-      .'<br /><textarea style="width:500px; height: 200px; font-family:courier">'
+      .'<br /><form action="'.url_for('swFunctionalTestSave/saveTest').'" method="post" ><textarea name="test_content" style="width:500px; height: 200px; font-family:courier">'
       .$formatter->build(swFilterFunctionalTest::getRawPhp()).
       '</textarea>
-      </div>
-      <div style="float:left">
-        <h2>References</h2>
-        <ul>
-          <li><a href="http://www.symfony-project.org/book/1_2/15-Unit-and-Functional-Testing#chapter_15_functional_tests" target="_new">Functional Test</a>
-            <ul>
-              <li><a href="http://www.symfony-project.org/book/1_2/15-Unit-and-Functional-Testing#chapter_15_sub_browsing_with_the_sftestbrowser_object" target="_new">Browsing with the sfTestBrowser Object</a></li>
-              <li><a href="http://www.symfony-project.org/book/1_2/15-Unit-and-Functional-Testing#chapter_15_sub_using_assertions" target="_new">Using Assertions</a></li>
-              <li><a href="http://www.symfony-project.org/book/1_2/15-Unit-and-Functional-Testing#chapter_15_sub_using_css_selectors" target="_new">Using CSS Selectors</a></li>
-              <li><a href="http://www.symfony-project.org/book/1_2/15-Unit-and-Functional-Testing#chapter_15_sub_testing_for_errors" target="_new">Testing for errors</a></li>
-              <li><a href="http://www.symfony-project.org/book/1_2/15-Unit-and-Functional-Testing#chapter_15_sub_working_in_the_test_environment" target="_new">Working in the Test Environment</a></li>          
-            </ul>
-          </li>
-          <li><a href="http://www.symfony-project.org/plugins/swToolboxPlugin" target="_new">swToolboxPlugin (symfony plugin page)</a></li>
-        </ul>
+      <br/>
+      Test Name : <input type="text" size="20" name="test_name"/>
+      <input type="Submit" name="Save Test" value="Save Test" /><br/><br/>
+      </form>
       </div>
      </div>
     ';
